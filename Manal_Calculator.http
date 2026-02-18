@@ -1,0 +1,6 @@
+@Manal_Calculator_HostAddress = http://localhost:5278
+
+GET {{Manal_Calculator_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
