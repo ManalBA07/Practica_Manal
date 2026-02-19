@@ -1,0 +1,18 @@
+﻿@model List<CalculatorService.Server.Models.JournalEntry>
+
+<h2>Journal</h2>
+
+@foreach (var user in Model)
+{
+    <h3>@user.TrackingId</h3>
+
+    <ul>
+        @foreach (var calc in user.Calculations)
+        {
+            <li>
+                @calc.Operation = @calc.Result
+                (@calc.Timestamp)
+            </li>
+        }
+    </ul>
+}cf 

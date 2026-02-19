@@ -1,0 +1,27 @@
+[
+  {
+    "TrackingId": "Juan",
+    "Calculations": [
+      {
+        "Result": 15,
+        "Operation": "ADD",
+        "Timestamp": "2026-02-19T17:30:00"
+      },
+      {
+        "Result": 3,
+        "Operation": "DIV",
+        "Timestamp": "2026-02-19T17:31:00"
+      }
+    ]
+  },
+  {
+    "TrackingId": "Maria",
+    "Calculations": [
+      {
+        "Result": 9,
+        "Operation": "SQRT",
+        "Timestamp": "2026-02-19T17:35:00"
+      }
+    ]
+  }
+]

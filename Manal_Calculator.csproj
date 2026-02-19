@@ -7,8 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Exclude client console app sources from this web project to avoid multiple top-level Program.cs -->
+    <Compile Remove="CalculatorService.Client\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="tets\" />
   </ItemGroup>
 
 </Project>
