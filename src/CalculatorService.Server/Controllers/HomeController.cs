@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace CalculatorService.Server.Controllers;
+namespace Manal_Calculator.src.CalculatorService.Server.Controllers;
 
 public class HomeController : Controller
 {

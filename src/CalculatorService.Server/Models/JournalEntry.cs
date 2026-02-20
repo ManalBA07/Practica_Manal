@@ -1,4 +1,4 @@
-﻿namespace CalculatorService.Server.Models;
+﻿namespace Manal_Calculator.src.CalculatorService.Server.Models;
 
 public class JournalEntry
 {

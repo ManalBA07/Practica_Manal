@@ -1,6 +1,6 @@
-using CalculatorService.Server.Services;
-using CalculatorSvc = global::CalculatorService.Server.Services.CalculatorService;
-using JournalSvc = global::CalculatorService.Server.Services.JournalService;
+using Manal_Calculator.src.CalculatorService.Server.Services;
+using CalculatorSvc = global::Manal_Calculator.src.CalculatorService.Server.Services.CalculatorService;
+using JournalSvc = global::Manal_Calculator.src.CalculatorService.Server.Services.JournalService;
 
 var builder = WebApplication.CreateBuilder(args);
 

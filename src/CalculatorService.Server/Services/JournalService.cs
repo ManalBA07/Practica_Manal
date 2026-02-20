@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using CalculatorService.Server.Models;
+using Manal_Calculator.src.CalculatorService.Server.Models;
 
-namespace CalculatorService.Server.Services;
+namespace Manal_Calculator.src.CalculatorService.Server.Services;
 
 public class JournalService : IJournalService
 {

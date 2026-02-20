@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CalculatorService.Server.Services;
-using CalculatorService.Server.Models;
+using Manal_Calculator.src.CalculatorService.Server.Models;
+using Manal_Calculator.src.CalculatorService.Server.Services;
 
-namespace CalculatorService.Server.Controllers;
+namespace Manal_Calculator.src.CalculatorService.Server.Controllers;
 
 [ApiController]
 [Route("api/calculator")]

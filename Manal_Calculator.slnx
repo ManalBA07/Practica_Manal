@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="../Client/Client.csproj" Id="a786a985-28c6-44a0-8633-548f0f77bf36" />
+  <Project Path="../Server/Server.csproj" Id="94b0b165-e8b6-4fcc-a60f-a1b0024e167d" />
   <Project Path="Manal_Calculator.csproj" />
 </Solution>

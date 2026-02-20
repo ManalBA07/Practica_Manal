@@ -1,4 +1,4 @@
-﻿namespace CalculatorService.Server.Services;
+﻿namespace Manal_Calculator.src.CalculatorService.Server.Services;
 
 public interface ICalculatorService
 {
