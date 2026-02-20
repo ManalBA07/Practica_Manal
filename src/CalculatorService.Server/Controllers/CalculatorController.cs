@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Manal_Calculator.src.CalculatorService.Server.Models;
 using Manal_Calculator.src.CalculatorService.Server.Services;
+using System.Security.Cryptography.Xml;
 
 namespace Manal_Calculator.src.CalculatorService.Server.Controllers;
 
@@ -34,6 +35,7 @@ public class CalculatorController : ControllerBase
             });
         }
     }
+   
 
     [HttpPost("add")]
     public IActionResult Add([FromBody] CalculationRequest req)
