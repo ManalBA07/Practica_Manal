@@ -4,4 +4,5 @@
   </Folder>
   <Project Path="../Client/Client.csproj" Id="a786a985-28c6-44a0-8633-548f0f77bf36" />
   <Project Path="../Server/Server.csproj" Id="94b0b165-e8b6-4fcc-a60f-a1b0024e167d" />
+  <Project Path="Server.Tests/Server.Tests.csproj" Id="2a6c1fa4-0003-4015-b410-917791d38193" />
 </Solution>
