@@ -1,0 +1,233 @@
+@{
+    ViewData["Title"] = "Calculator";
+}
+
+<div class="card mx-auto" style="max-width:420px;">
+    <div class="card-body">
+        <h4 class="card-title">Calculator</h4>
+
+        <div class="mb-2">
+            <label class="form-label">Tracking ID (optional)</label>
+            <div class="input-group">
+                <input id="trackingId" class="form-control" placeholder="Leave empty to generate or reuse" />
+                <button id="saveTracking" class="btn btn-outline-secondary">Save</button>
+                <button id="genTracking" class="btn btn-outline-secondary">Generate</button>
+            </div>
+            <small class="text-muted">Saved to localStorage and sent with every API call.</small>
+        </div>
+
+        <div class="mb-3">
+            <input id="display" class="form-control form-control-lg text-end" type="text" value="0" readonly />
+        </div>
+
+        <div class="d-grid gap-2 mb-2">
+            <div class="btn-group w-100" role="group">
+                <button class="btn btn-light calc-btn" data-action="clear">C</button>
+                <button class="btn btn-light calc-btn" data-action="neg">±</button>
+                <button class="btn btn-light calc-btn" data-action="sqrt">√</button>
+                <button class="btn btn-warning calc-op" data-op="DIV">÷</button>
+            </div>
+            <div class="btn-group w-100" role="group">
+                <button class="btn btn-light num" data-num="7">7</button>
+                <button class="btn btn-light num" data-num="8">8</button>
+                <button class="btn btn-light num" data-num="9">9</button>
+                <button class="btn btn-warning calc-op" data-op="MUL">×</button>
+            </div>
+            <div class="btn-group w-100" role="group">
+                <button class="btn btn-light num" data-num="4">4</button>
+                <button class="btn btn-light num" data-num="5">5</button>
+                <button class="btn btn-light num" data-num="6">6</button>
+                <button class="btn btn-warning calc-op" data-op="SUB">−</button>
+            </div>
+            <div class="btn-group w-100" role="group">
+                <button class="btn btn-light num" data-num="1">1</button>
+                <button class="btn btn-light num" data-num="2">2</button>
+                <button class="btn btn-light num" data-num="3">3</button>
+                <button class="btn btn-warning calc-op" data-op="ADD">+</button>
+            </div>
+            <div class="btn-group w-100" role="group">
+                <button class="btn btn-light num flex-grow-1" data-num="0" style="width:66%;">0</button>
+                <button class="btn btn-light num" data-num=".">.</button>
+                <button class="btn btn-success" id="equals">=</button>
+            </div>
+        </div>
+
+        <div id="calcMsg" class="text-danger small" style="min-height:1.2em;"></div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const display = document.getElementById('display');
+    const msg = document.getElementById('calcMsg');
+    const trackingInput = document.getElementById('trackingId');
+
+    // state
+    let current = '0';
+    let stored = null;
+    let pendingOp = null;
+    let waitingForNew = false;
+
+    // restore tracking id
+    const saved = localStorage.getItem('trackingId');
+    if (saved) trackingInput.value = saved;
+
+    document.getElementById('saveTracking').addEventListener('click', (e) => {
+        localStorage.setItem('trackingId', trackingInput.value.trim());
+        msg.textContent = 'Tracking ID saved.';
+        setTimeout(() => msg.textContent = '', 1500);
+    });
+
+    document.getElementById('genTracking').addEventListener('click', (e) => {
+        const id = crypto.randomUUID();
+        trackingInput.value = id;
+        localStorage.setItem('trackingId', id);
+        msg.textContent = 'Generated and saved Tracking ID.';
+        setTimeout(() => msg.textContent = '', 1500);
+    });
+
+    function updateDisplay() {
+        display.value = current;
+    }
+
+    function clearAll() {
+        current = '0';
+        stored = null;
+        pendingOp = null;
+        waitingForNew = false;
+        updateDisplay();
+    }
+
+    function pressDigit(d) {
+        if (waitingForNew) {
+            current = d === '.' ? '0.' : d;
+            waitingForNew = false;
+        } else if (d === '.' && current.includes('.')) {
+            // ignore
+        } else {
+            current = current === '0' && d !== '.' ? d : current + d;
+        }
+        updateDisplay();
+    }
+
+    function toggleNeg() {
+        if (current === '0') return;
+        if (current.startsWith('-')) current = current.substring(1);
+        else current = '-' + current;
+        updateDisplay();
+    }
+
+    async function callApi(op, a, b) {
+        msg.textContent = '';
+        try {
+            let url = `/api/calculator/operate`;
+            let body;
+            let headers = { 'Content-Type': 'application/json' };
+            const tid = trackingInput.value.trim() || localStorage.getItem('trackingId');
+            if (tid) headers['X-Evi-Tracking-Id'] = tid;
+
+            const payload = { operation: op, operand1: parseFloat(a) };
+            if (op !== 'SQRT') payload.operand2 = parseFloat(b);
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(payload)
+            });
+
+            // update tracking id from response header if server set one
+            const respTid = res.headers.get('X-Evi-Tracking-Id');
+            if (respTid) {
+                trackingInput.value = respTid;
+                localStorage.setItem('trackingId', respTid);
+            }
+
+            if (!res.ok) {
+                let text = await res.text();
+                msg.textContent = (text && text.length < 300) ? text : `Server error: ${res.status}`;
+                return null;
+            }
+
+            // numeric result expected
+            const json = await res.json();
+            return json;
+        } catch (ex) {
+            msg.textContent = 'Network or server error.';
+            return null;
+        }
+    }
+
+    async function performOperation(op) {
+        if (op === 'SQRT') {
+            const result = await callApi('SQRT', current);
+            if (result !== null) {
+                current = String(result);
+                waitingForNew = true;
+                pendingOp = null;
+                stored = null;
+                updateDisplay();
+            }
+            return;
+        }
+
+        if (pendingOp && stored !== null && !waitingForNew) {
+            // chain previous pending op first
+            const res1 = await callApi(pendingOp, stored, current);
+            if (res1 !== null) {
+                current = String(res1);
+                updateDisplay();
+                stored = current;
+            } else {
+                return;
+            }
+        } else if (stored === null) {
+            stored = current;
+        }
+
+        pendingOp = op;
+        waitingForNew = true;
+    }
+
+    document.querySelectorAll('.num').forEach(b => b.addEventListener('click', e => pressDigit(b.dataset.num)));
+    document.querySelectorAll('.calc-btn[data-action="clear"]').forEach(b => b.addEventListener('click', clearAll));
+    document.querySelectorAll('.calc-btn[data-action="neg"]').forEach(b => b.addEventListener('click', toggleNeg));
+    document.querySelectorAll('.calc-op').forEach(b => b.addEventListener('click', async (e) => {
+        const op = b.dataset.op;
+        await performOperation(op);
+    }));
+
+    document.getElementById('equals').addEventListener('click', async () => {
+        if (!pendingOp || stored === null) return;
+        const res = await callApi(pendingOp, stored, current);
+        if (res !== null) {
+            current = String(res);
+            updateDisplay();
+            stored = null;
+            pendingOp = null;
+            waitingForNew = true;
+        }
+    });
+
+    // keyboard support
+    window.addEventListener('keydown', (ev) => {
+        if ((ev.key >= '0' && ev.key <= '9') || ev.key === '.') {
+            pressDigit(ev.key);
+        } else if (ev.key === 'Enter') {
+            document.getElementById('equals').click();
+        } else if (ev.key === 'Escape') {
+            clearAll();
+        } else if (ev.key === '+' || ev.key === '-') {
+            document.querySelector(`.calc-op[data-op="${ev.key === '+' ? 'ADD' : 'SUB'}"]`)?.click();
+        } else if (ev.key === '*') {
+            document.querySelector('.calc-op[data-op="MUL"]')?.click();
+        } else if (ev.key === '/') {
+            document.querySelector('.calc-op[data-op="DIV"]')?.click();
+        }
+    });
+
+    // init
+    clearAll();
+})();
+</script>
+}
